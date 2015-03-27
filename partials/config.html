@@ -1,0 +1,125 @@
+<section ng-controller="configCtrl">
+	<section>
+		<div class="loader"></div>
+		<a class="back" ng-hide="panel==0" ng-click="backConfig(panel)"><i class="icon-circle-arrow-left icon-2x"></i></a>
+		<div class="rt-parameters rt-general"><i class="icon-download-alt fleft"></i>Param&eacute;tres</div>
+		<section class="panel panel-padding-2x center panel-overflow" ng-class="{center:panel==0,left:panel>0}">
+			<div>
+				<div class="form-config">
+					<p>
+						<span class="config-icon"><i class="icon-download-alt icon-2x"></i></span><a class="config-btn" ng-click="importData()">Initialiser les donn&eacute;es</a>
+					</p>
+					<p>
+						<span class="config-icon"><i class="icon-group icon-2x"></i></span><a class="config-btn" ng-click="configUsers()">Gérer les utilisateurs</a>
+					</p>
+					<p>
+						<span class="config-icon"><i class="icon-user icon-2x"></i></span><a class="config-btn" ng-click="addUser()">Ajouter un utilisateur</a>
+					</p>
+					<p>
+						<span class="config-icon"><i class="icon-save icon-2x"></i></span><a class="config-btn" ng-click="saveData()">Sauvegarder la base</a>
+					</p>	
+				</div>
+			</div>		
+		</section>
+		<div class="rt-import-data rt-general"><i class="icon-download-alt fleft"></i>Initialisation des donn&eacute;es</div>
+		<div class="rt-config-user rt-general"><i class="icon-group fleft"></i>Gestion des utilisateurs</div>
+		<div class="rt-add-user rt-general"><i class="icon-user fleft"></i>Ajout d&#145;utilisateurs</div>
+		<div class="rt-save-data rt-general"><i class="icon-save fleft"></i>Sauvegarde de la base</div>
+		<section class="panel right panel-overflow"  ng-class="{center:panel==1,right:panel<1,left:panel>1}">
+			<section class="import-data" ng-class="{right_active:config_action==0,right_inactive:config_action!=0}">
+				<div class="frm-import-data">
+					<p class="text-center">
+						<span class="btn-data-import"><a class="config-btn btn-import" ng-click="dataInitialize()"><i class="icon-download-alt"></i>&nbsp;Importer</a></span>
+						<span class="btn-data-delete"><a class="config-btn btn-import" ng-click="dataDelete()"><i class="icon-upload-alt"></i>&nbsp;Supprimer</a></span>
+					</p>
+					<p>
+						<div class="import-data-state">
+							<div class="fleft"><i class="icon-table icon-2x icon-inherit"></i></div>
+							<div class="step-state">&nbsp;&nbsp;Structure</div>
+							<div class="fright step-status-notok notok-structure"><i class="icon-remove-circle icon-2x icon-inherit"></i></div>
+							<div class="fright step-status-ok ok-structure"><i class="icon-ok-circle icon-2x icon-inherit"></i></div>							
+						</div>
+					</p>
+					<p>
+						<div class="import-data-state">
+							<div class="fleft"><i class="icon-align-justify icon-2x icon-inherit"></i>
+							</div><div class="step-state">&nbsp;&nbsp;Donn&eacute;es</div>
+							<div class="fright step-status-notok notok-data"><i class="icon-remove-circle icon-2x icon-inherit"></i></div>
+							<div class="fright step-status-ok ok-data"><i class="icon-ok-circle icon-2x icon-inherit"></i></div>
+						</div>
+					</p>
+					<p class="text-center import-data-log">
+						<a class="config-btn btn-logs" ng-click="dataLogs()"><i class="icon-file-text-alt"></i>&nbsp;&nbsp;Afficher les logs</a>
+					</p>	
+				</div>
+			</section>
+			<section class="config-user" ng-class="{right_active:config_action==1,right_inactive:config_action!=1}">				
+				<form class="frm-config-user">	
+					<!--<a class="test" ng-click="test()">test</a>-->				
+					<div class="row-config-user" ng-click="expand($event)" id="{{u.id}}" ng-repeat="u in userList.$resources">
+						<script type="text/ng-template" id="mdEditUser.html">
+					        <div class="modal-header md-user-edit-title">
+					            <h3 class="modal-title">Modifier un utilisateur</h3>
+					        </div>
+					        <div class="modal-body">
+					        	<form>
+					            	<p><label>Nom :</label><input type="text" class="text lastname-user-edit" placeholder="Nom" value="{{users.lastname}}" /></p>
+									<p><label>Prénom :</label><input type="text" class="text firstname-user-edit" placeholder="Prénom" value="{{users.firstname}}" /></p>
+								</form>
+					        </div>
+					        <div class="modal-footer">
+					            <span class="user-edit"><a class="btn-md-user-edit" ng-init="editInit()" ng-click="editUser()">Modifier</a></span>
+					            <span class="user-cancel"><a class="btn-md-user-edit-cancel" ng-init="cancelInit()" ng-click="cancelEdit()">Annuler</a></span>
+					        </div>
+					    </script>
+					    <script type="text/ng-template" id="mdDeleteUser.html">
+					        <div class="modal-header md-user-delete-title">
+					            <h3 class="modal-title">Supprimer un utilisateur</h3>
+					        </div>
+					        <div class="modal-body">
+					        	<p>Voulez-vous supprimer l&#145;utilisateur</p>
+					        	<p>{{users.firstname}} {{users.lastname}} ?</p>
+					        </div>
+					        <div class="modal-footer">
+					            <span class="user-delete"><a class="btn-md-user-delete" ng-init="deleteInit()" ng-click="deleteUser()">Oui</a></span>
+					            <span class="user-cancel"><a class="btn-md-user-edit-cancel" ng-init="cancelInit()" ng-click="cancelDelete()">Non</a></span>
+					        </div>
+					    </script>
+					    <span class="user-pret" ng-hide="u.is_pret==0"><i class="icon-film"></i></span>
+					    <span class="user-pret-info" ng-hide="u.is_pret==0"><a ng-click="userPretInfo()"><i class="icon-info-sign"></i></a></span>
+						<div class="config-user-name">{{u.firstname}}&nbsp;{{u.lastname}}</div>
+						<div class="config-user-name-left"><span class="sp-delete-user" ng-class="{sp_delete_user_inactive:u.is_pret==1}"><a class="delete-user" ng-class="{delete_user_inactive:u.is_pret==1}" ng-click="open('sm','mdDeleteUser.html',u)"><i class="icon-trash"></i>&nbsp;Supprimer</a></span></div>
+						<div class="config-user-name-right"><span class="sp-edit-user"><a class="edit-user" ng-click="open('sm','mdEditUser.html',u,$event)"><i class="icon-pencil"></i>&nbsp;Modifier</a></span></div>
+					</div>
+				</form>
+			</section>
+			<section class="add-user" ng-class="{right_active:config_action==2,right_inactive:config_action!=2}">				
+				<form class="frm-add-user">
+					<p><label>Nom :</label><input type="text" class="text lastname-user" placeholder="Nom" /></p>
+					<p><label>Prénom :</label><input type="text" class="text firstname-user" placeholder="Prénom" /></p>
+					<span class="btn-save-new-user btn-save-new-user-disabled"><a class="submit" ng-click="saveNewUser()">Ajouter</a></span>
+				</form>
+				<div class="last-add-user">
+					<div class="last-add-user-title"><i class="icon-time"></i>&nbsp;&nbsp;Dernier ajout</div>
+					<div class="last-add-user-entry">
+						<span class="last-add-user-firstname"></span>
+						<span class="last-add-user-lastname"></span>
+					</div>
+				</div>
+			</section>
+			<section class="save-data" ng-class="{right_active:config_action==3,right_inactive:config_action!=3}">				
+				<form class="frm-save-data">
+					save data
+				</form>
+			</section>
+		</section>
+		<section class="panel right panel-overflow"  ng-class="{center:panel==2,right_inactive:panel<2}">
+			<div class="row-config-user"  ng-click="expand($event)">
+				test2
+			</div>
+			<div class="row-config-user"  ng-click="expand($event)">
+				test2
+			</div>
+		</section>
+	</section>
+</section>
