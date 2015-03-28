@@ -1,6 +1,7 @@
 <section ng-controller="listCtrl" ng-init="populateTypeMovie()">
+	
 	<section>
-		<div class="loader"></div>
+		<div class="loader" ng-show="loader"></div>
 		<a class="back" ng-hide="panel==0" ng-click="backConfig(panel)"><i class="icon-circle-arrow-left icon-2x"></i></a>
 		<div class="rt-filter-list rt-general"><i class="icon-filter fleft"></i>Recherche de films</div>
 		<section class="panel panel-padding-2x center panel-overflow" ng-init="initSection0" ng-class="{center:panel==0,left:panel>0}">
@@ -27,13 +28,19 @@
 		    <div class="frm-filter-search">
 		    	<p class="text-center">
 					<span class="btn-filter-tapped btn-filter-filter btn-filter-disabled"><a class="filter-btn btn-filter" ng-click="filterMovie()"><i class="icon-filter"></i>&nbsp;Rechercher</a></span>
-					<span class="btn-filter-tapped"><a class="filter-btn btn-filter" ng-click="searchMovie()"><i class="icon-search"></i>&nbsp;Voir tout</a></span>
+					<span class="btn-filter-tapped"><a class="filter-btn btn-filter" ng-click="searchMovie(true)"><i class="icon-search"></i>&nbsp;Voir tout</a></span>
 				</p>
 		    </div>
 
 		</section>
 		<div class="rt-result-list rt-general"><i class="icon-film fleft"></i>Liste des films</div>
-		<section class="panel right panel-overflow" ng-init="initSection1"  ng-class="{center:panel==1,right:panel<1,left:panel>1}">
+		<div class="pagination-content hide"><pagination boundary-links="true" 
+          max-size="5"
+          items-per-page="itemsPerPage"
+          total-items="totalItems" 
+          ng-model="currentPage" 
+          ng-change="pageChanged()"></pagination></div>
+		<section class="panel right panel-overflow panel-movie-list" ng-init="initSection1"  ng-class="{center:panel==1,right:panel<1,left:panel>1}">
 			<section class="list-movies">
 				<div class="row-list-movies" ng-click="expand($event)" id="{{m.id}}" ng-repeat="m in listMovies.$resources">
 					<div class="color_movies_pret color_movie_pret_sm" ng-class="{color_movie_available:m.is_pret==0,color_movie_notavailable:m.is_pret==1}"></div>
@@ -45,7 +52,7 @@
 					<div class="movie_avis movie_avis_sm"><i class="movie_list_icon icon-caret-right"></i>Avis : <span class="cGrey">{{m.round_rate}}</span></div>
 				</div>
 			</div>
-		</section>
+		</section>		
 		<section class="panel right panel-overflow"  ng-class="{center:panel==2,right_inactive:panel<2}">
 
 		</section>

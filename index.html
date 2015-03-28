@@ -5,9 +5,12 @@
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-        <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css" />
-        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <!--<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />-->
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css" />
+        <!--<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.css" />-->
+        <link rel="stylesheet" type="text/css" href="css/style.min.css" />
+        <!--<link rel="stylesheet" type="text/css" href="css/style.css" />-->
         <link rel="stylesheet" type="text/css" href="css/font-awesome.css" />
         <title>Videotheque</title>
     </head>
@@ -21,7 +24,7 @@
         </section>
         <nav class="nav" ng-controller="navCtrl">
             <a href="#home" ng-click="nav('home','icon-home')" ng-class="{active:menu=='home'}" class="border-right-nav" ><i class="icon-home"></i></a>
-            <a href="#list"ng-click="nav('list','icon-list-ul')" ng-class="{active:menu=='list'}" class="border-right-nav" ><i class="icon-list-ul"></i></a>
+            <a href="#list" ng-click="nav('list','icon-list-ul')" ng-class="{active:menu=='list'}" class="border-right-nav" ><i class="icon-list-ul"></i></a>
             <a href="#add" ng-click="nav('add','icon-plus')" ng-class="{active:menu=='add'}" class="border-right-nav" ><i class="icon-plus"></i></a>
             <a href="#exchange"ng-click="nav('exchange','icon-exchange')" ng-class="{active:menu=='exchange'}" class="border-right-nav" ><i class="icon-exchange"></i></a>
             <a href="#config" ng-click="nav('config','icon-gear')" ng-class="{active:menu=='config'}" ><i class="icon-gear"></i></a>
@@ -29,23 +32,23 @@
 
 
         <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/jquery.js"></script>
-        <script type="text/javascript" src="js/angular.js"></script>
-        <script type="text/javascript" src="js/angular-route.js"></script>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/angular.min.js"></script>
+        <script type="text/javascript" src="js/angular-route.min.js"></script>
+
         <script type="text/javascript" src="js/angular-locale_fr.js"></script>
         <script type="text/javascript" src="js/ui-bootstrap-tpls.js"></script>
-        <script type="text/javascript" src="js/general.js"></script>
-        <script type="text/javascript" src="js/controller/modalCtrl.js"></script>
-        <script type="text/javascript" src="js/controller/navCtrl.js"></script>
-        <script type="text/javascript" src="js/controller/homeCtrl.js"></script>
-        <script type="text/javascript" src="js/controller/listCtrl.js"></script>
-        <script type="text/javascript" src="js/controller/addCtrl.js"></script>
-        <script type="text/javascript" src="js/controller/exchangeCtrl.js"></script>        
-        <script type="text/javascript" src="js/controller/configCtrl.js"></script>        
-        <script type="text/javascript" src="js/data/importData.js"></script>
-        <script type="text/javascript" src="js/data/data.js"></script>
-        <script type="text/javascript" src="js/data/userData.js"></script>
-        <script type="text/javascript" src="js/data/listData.js"></script>
+        <!--<script type="text/javascript" src="js/controller/globalCtrl.js"></script>-->
+        <script type="text/javascript" src="js/controller/globalCtrl.min.js"></script>
+        <!--<script type="text/javascript" src="js/data/globalData.js"></script>-->  
+        <script type="text/javascript" src="js/data/globalData.min.js"></script>       
         <script type="text/javascript" src="js/app.js"></script>
+        <script type="text/javascript" src="js/FastClick.min.js"></script>
+
+        <script type='application/javascript'>
+            window.addEventListener('load', function() {
+                new FastClick(document.body);
+            }, false);
+        </script>
     </body>
 </html>

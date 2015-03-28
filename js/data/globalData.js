@@ -638,3 +638,346 @@ function addDataAction(tx){
 	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(2,1,1)");
 	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(2,2,3)");
 }
+
+
+
+/******************************************************/
+/* GESTION DE L'IMPORTATION DES DONNEES               */
+/******************************************************/
+/*STRUCTURE
+	TABLES:
+		movie_rate(id,movie_id,rate,type_avis_id)
+		movie_image(id,url,alt,title)
+		movie(id,image_id,pret_id,title,num_movie,nb_disc,is_pret,date_maj)*
+		movie_pret(id,lastname,firstname)
+		movie_typeavis(id,name)*
+		movie_typemovie(movie_id,type_movie_id)
+		movie_typemovies(id,type)*
+*/
+//Tableau de la liste des tables
+var tableList = ['movie_rate','movie_image','movie','movie_pret','movie_typeavis','movie_typemovie','movie_typemovies'];
+
+function browseStatus(){
+	//Test d'existence des tables
+	if($(".step-status-ok").hasClass('status-disabled')){
+		$(".step-status-ok").removeClass('status-disabled')
+	}
+	tableExists(null,true);
+}
+//Fonction d'initialisation de la base de données
+function importDataBase(){
+	//Création des tables
+	createTables();
+}
+//Fonction de création des tables
+function createTables(){
+	//On supprime d'abord toutes les tables
+	deleteTables(true);
+	//On recrée les tables
+	addTables();
+	//On renseigne les données
+	//A AUTOMATISER AVEC UN FICHIER A CHARGER PAR EXEMPLE
+	addData();
+}
+//Fonction test d'existence des tables
+//param:table -> (string) nom de ta table à tester
+//param:all -> (boolean) détermine si toutes les tables doivent-être testés
+function tableExists(table,all){	
+	if(all){
+		var tableListString = '';	
+		db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);
+		for(var i=0;i < tableList.length; i++){	
+			if(tableListString == ''){
+				tableListString += '\'' + tableList[i] + '\''
+			}	
+			else{
+				tableListString += ',\'' + tableList[i] + '\''
+			}	
+		}
+		db.transaction(function(tx){
+			tx.executeSql("SELECT COUNT(*) AS result FROM sqlite_master WHERE name in (" + tableListString + ");",[],function(tx,response){
+				if(response.rows.item(0).result == 0){
+					if($(".notok-structure").hasClass('status-disabled')){
+						$(".notok-structure").removeClass('status-disabled')
+					}
+					if($(".notok-data").hasClass('status-disabled')){
+						$(".notok-data").removeClass('status-disabled')
+					}
+					if($('.btn-data-import').hasClass('btn-data-import-disabled')){
+						$('.btn-data-import').removeClass('btn-data-import-disabled')
+					}
+					$(".ok-structure").addClass('status-disabled');
+					$(".ok-data").addClass('status-disabled');	
+					$('.btn-data-delete').addClass('btn-data-delete-disabled');													
+				}
+				else{
+					if($(".ok-structure").hasClass('status-disabled')){
+						$(".ok-structure").removeClass('status-disabled')
+					}
+					if($(".ok-data").hasClass('status-disabled')){
+						$(".ok-data").removeClass('status-disabled')
+					}
+					if($('.btn-data-delete').hasClass('btn-data-delete-disabled')){
+						$('.btn-data-delete').removeClass('btn-data-delete-disabled')
+					}
+					$(".notok-structure").addClass('status-disabled');
+					$(".notok-data").addClass('status-disabled');	
+					$('.btn-data-import').addClass('btn-data-import-disabled');	
+				}
+			},function(tx,error){
+				//log
+				alert('error tableExists')
+			});
+		});
+	}
+	else{
+		db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);
+		db.transaction(function(tx){
+			tx.executeSql("SELECT COUNT(*) AS result FROM sqlite_master WHERE name='" + table + "';",[],function(tx,response){
+				if(response.rows.item(0).result != 1){
+											
+				}
+			},function(tx,error){
+				//log
+			});
+		});	
+	}
+}
+
+//Fonction de suppression des tables si elles existent
+//param: forImport -> (boolean) détermine si c'est une suppression avant importation de la nouvelle base ou non
+function deleteTables(forImport){
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);
+	db.transaction(deleteTablesAction,function(){
+		//log
+		$(".loader").hide();
+		alert('error deleteTables');
+	},function(){
+		if(!$(".ok-structure").hasClass('status-disabled')){
+			$(".ok-structure").addClass('status-disabled')
+		}
+		if($(".notok-structure").hasClass('status-disabled')){
+			$(".notok-structure").removeClass('status-disabled')
+		}
+		if(!$(".ok-data").hasClass('status-disabled')){
+			$(".ok-data").addClass('status-disabled')
+		}
+		if($(".notok-data").hasClass('status-disabled')){
+			$(".notok-data").removeClass('status-disabled')
+		}
+		if(!$('.btn-data-delete').hasClass('btn-data-delete-disabled')){
+			$('.btn-data-delete').addClass('btn-data-delete-disabled');	
+		}
+		if($('.btn-data-import').hasClass('btn-data-import-disabled')){
+			$('.btn-data-import').removeClass('btn-data-import-disabled');	
+		}
+		if(!forImport){
+			$(".loader").hide();
+		}
+	});
+	
+}
+function deleteTablesAction(tx){
+	tx.executeSql("DROP TABLE IF EXISTS movie_rate;");
+	tx.executeSql("DROP TABLE IF EXISTS movie_image;");
+	tx.executeSql("DROP TABLE IF EXISTS movie;");
+	tx.executeSql("DROP TABLE IF EXISTS movie_pret;");
+	tx.executeSql("DROP TABLE IF EXISTS movie_typeavis;");
+	tx.executeSql("DROP TABLE IF EXISTS movie_typemovie;");
+	tx.executeSql("DROP TABLE IF EXISTS movie_typemovies;");
+}
+//Fonction d'ajout des tables
+function addTables(){
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);
+	db.transaction(addTablesAction,function(){
+		//log
+		$(".loader").hide();
+		alert('error addTables');
+	},function(){
+		if($(".ok-structure").hasClass('status-disabled')){
+			$(".ok-structure").removeClass('status-disabled')
+		}
+		if(!$(".notok-structure").hasClass('status-disabled')){
+			$(".notok-structure").addClass('status-disabled')
+		}
+		if($('.btn-data-delete').hasClass('btn-data-delete-disabled')){
+			$('.btn-data-delete').removeClass('btn-data-delete-disabled');	
+		}		
+	});
+}
+function addTablesAction(tx){
+	tx.executeSql('CREATE TABLE "movie_rate" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "movie_id" INTEGER NOT NULL , "rate" INTEGER NOT NULL , "type_avis_id" INTEGER NOT NULL)');
+	tx.executeSql('CREATE TABLE "movie_image" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "url" VARCHAR NOT NULL , "alt" VARCHAR NOT NULL , "title" VARCHAR NOT NULL)');
+	tx.executeSql('CREATE TABLE "movie" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "image_id" INTEGER, "pret_id" INTEGER, "title" VARCHAR NOT NULL , "num_movie" INTEGER NOT NULL, "nb_disc"  INTEGER NOT NULL, "is_pret" BOOL, "date_maj" DATETIME)');
+	tx.executeSql('CREATE TABLE "movie_pret" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "lastname" VARCHAR NOT NULL , "firstname" VARCHAR NOT NULL, "is_pret" BOOL)');
+	tx.executeSql('CREATE TABLE "movie_typeavis" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "name" VARCHAR NOT NULL)');
+	tx.executeSql('CREATE TABLE "movie_typemovie" ("movie_id" INTEGER NOT NULL, "type_movie_id" INTEGER NOT NULL)');
+	tx.executeSql('CREATE TABLE "movie_typemovies" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "type" VARCHAR NOT NULL)');
+}
+
+
+//Fonction de suppression de la base de données
+function deleteDataBase(){
+	deleteTables(false);
+}
+
+
+
+
+
+function populateFilterTypeMovie($scope){
+	//Récupère la liste des types de films
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("SELECT * FROM movie_typemovies;",[],function(tx,response){
+			if (response != null && response.rows != null) {
+				var newJson = { $resources: [] };
+				for (var k = 0; k < response.rows.length; k++) {
+
+                    var row = response.rows.item(k);
+                    newJson.$resources[k] = { id: row.id , type: row.type};
+                }
+				$scope.listFilter = newJson;
+			}
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});	
+}
+
+function listMovie($scope){
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+						"movie.title AS title,movie.num_movie AS num_movie," +
+						"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+						"movie.date_maj AS date_maj,typemovies.type AS type," + 
+						"pret.lastname AS lastname,pret.firstname AS firstname," +
+						"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+						"(SELECT count(*) FROM movie) AS count " + 
+						" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+						" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+						"LEFT JOIN movie_pret pret ON pret.id = movie.pret_id LIMIT " + $scope.beginItems + "," + $scope.itemsPerPage + ";"
+		,[],function(tx,response){
+			if (response != null && response.rows != null) {
+				var newJson = { $resources: [] };
+				var nbItems = 0;
+				for (var k = 0; k < response.rows.length; k++) {
+
+                    var row = response.rows.item(k);
+                    newJson.$resources[k] = { id: row.id ,
+                								pret_id: row.pret_id,
+                								date_maj:row.date_maj,
+                								type: row.type,
+                								lastname: row.lastname,
+                								firstname: row.firstname,
+                								round_rate: row.round_rate,
+                								num_movie: row.num_movie,
+            									nb_disc: row.nb_disc,
+            									is_pret: row.is_pret,
+            									title: row.title,
+            									count: row.count};
+					if(nbItems == 0){
+						nbItems = row.count;
+					}
+                }
+				$scope.listMovies = newJson;
+				$scope.totalItems = nbItems;
+				if($('.pagination-content').hasClass('hide')){
+					$('.pagination-content').removeClass('hide');
+				}
+				$scope.getPage();				
+			}
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+
+
+
+
+function lastUserAdd(){
+	//Récupère le dernier utilisateur ajouté
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("SELECT COUNT(*) AS result FROM movie_pret;",[],function(tx,response){
+			if(response.rows.item(0).result == 0){
+				$(".last-add-user").hide();												
+			}
+			else{
+				tx.executeSql("SELECT * FROM movie_pret ORDER BY id DESC LIMIT 1",[],function(tx,response){
+						$(".last-add-user-firstname").html(response.rows.item(0).firstname);
+						$(".last-add-user-lastname").html(response.rows.item(0).lastname);
+						$(".last-add-user").show();	
+					},function(tx,error){});
+			}
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+function saveUser(firstname,lastname){
+	//Sauvegarde un nouvel utilisateur
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("INSERT INTO movie_pret(lastname,firstname,is_pret)VALUES('" + lastname + "','" + firstname + "',0);",[],function(tx,response){
+			$(".lastname-user").val('');
+			$(".firstname-user").val('');
+			lastUserAdd();
+			if(!$('.btn-save-new-user').hasClass('btn-save-new-user-disabled')){
+				$('.btn-save-new-user').addClass('btn-save-new-user-disabled');
+    		}											
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+function listUser($scope){
+	//Récupère la liste des utilisateurs
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("SELECT * FROM movie_pret;",[],function(tx,response){
+			if (response != null && response.rows != null) {
+				var newJson = { $resources: [] };
+				for (var k = 0; k < response.rows.length; k++) {
+
+                    var row = response.rows.item(k);
+                    newJson.$resources[k] = { id: row.id , lastname: row.lastname , firstname:row.firstname, is_pret:row.is_pret };
+                }
+				$scope.userList = newJson;
+			}
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+//Modification d'un utilisateur
+function editUserData(user,modalInstance,lastnameUser,firstnameUser){
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("UPDATE movie_pret SET lastname = '"+ lastnameUser +"',firstname = '"+ firstnameUser +"' WHERE id = "+ user.id +";",[],function(tx,response){
+			modalInstance.close();										
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+//Suppression d'un utilisateur
+function deleteUserData(user,modalInstance){
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("DELETE FROM movie_pret WHERE id = "+ user.id +";",[],function(tx,response){
+			modalInstance.close();										
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
