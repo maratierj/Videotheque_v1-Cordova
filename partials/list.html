@@ -27,8 +27,8 @@
 		    </div>
 		    <div class="frm-filter-search">
 		    	<p class="text-center">
-					<span class="btn-filter-tapped btn-filter-filter btn-filter-disabled"><a class="filter-btn btn-filter" ng-click="filterMovie()"><i class="icon-filter"></i>&nbsp;Rechercher</a></span>
-					<span class="btn-filter-tapped"><a class="filter-btn btn-filter" ng-click="searchMovie(true)"><i class="icon-search"></i>&nbsp;Voir tout</a></span>
+					<span class="btn-filter-tapped btn-filter-filter btn-filter-disabled"><a class="filter-btn btn-filter" ng-click="searchMovie(true,true)"><i class="icon-filter"></i>&nbsp;Rechercher</a></span>
+					<span class="btn-filter-tapped"><a class="filter-btn btn-filter" ng-click="searchMovie(false,true)"><i class="icon-search"></i>&nbsp;Voir tout</a></span>
 				</p>
 		    </div>
 
@@ -46,6 +46,7 @@
 					<div class="color_movies_pret color_movie_pret_sm" ng-class="{color_movie_available:m.is_pret==0,color_movie_notavailable:m.is_pret==1}"></div>
 					<span class="btn_edit_movie btn_edit_movie_sm"><a class="edit_movie" ng-click="editMovie(m.id)" ><i class="icon-pencil"></i>&nbsp;Modifier</a></span>
 					<div class="movie_title movie_title_sm">{{m.title}}</div>
+					<span class="movie_nb_disc_badge movie_nb_disc_badge_sm badge">{{m.nb_disc}}</span>
 					<div class="movie_nbMovie movie_nbMovie_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; film : <span class="cGrey">{{m.num_movie}}</span></div>
 					<div class="movie_nbDisc movie_nbDisc_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; disque : <span class="cGrey">{{m.nb_disc}}</span></div>
 					<div class="movie_type movie_type_sm"><i class="movie_list_icon icon-caret-right"></i>Type : <span class="cGrey">{{m.type}}</span></div>

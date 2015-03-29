@@ -15,7 +15,7 @@ app.factory('GetAppService',function($rootScope){
 		getFilters : function($rootScope){
 			populateFilterTypeMovie($rootScope);
 		},
-		getAllList : function($rootScope){
+		getListMovie : function($rootScope){
 			listMovie($rootScope);
 		}
 	}

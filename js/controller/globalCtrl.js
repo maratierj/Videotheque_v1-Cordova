@@ -1,3 +1,11 @@
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                             GENERAL                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
 function addDynamicTappedClass(domClass){
     $('.' + domClass + ' a').on('touchstart', function(e){
         $(this).addClass('tapped');
@@ -15,6 +23,14 @@ function addDynamicTappedClass(domClass){
         return false;
     });
 }
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                    MODAL CONTROLLER                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function modalCtrl ($scope, $modalInstance,users) {
     $scope.users = users;
@@ -45,13 +61,26 @@ function modalCtrl ($scope, $modalInstance,users) {
 }
 
 
-
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                     ADD  CONTROLLER                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function addCtrl($scope){
     $scope.menu='home';
 }
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                    CONFIG CONTROLLER                              //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function configCtrl($scope,GetAppService,$timeout,$modal,$log){
     /******************************************************/
@@ -279,18 +308,39 @@ function configCtrl($scope,GetAppService,$timeout,$modal,$log){
 }
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                    EXCHANGE CONTROLLER                            //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function exchangeCtrl($scope){
     $scope.menu='home';
 }
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                     HOME CONTROLLER                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function homeCtrl($scope){
 
 }
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                     LIST CONTROLLER                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function listCtrl($scope,GetAppService,$timeout){
     /******************************************************/
@@ -299,6 +349,9 @@ function listCtrl($scope,GetAppService,$timeout){
     $scope.panel = 0;
     $scope.itemsPerPage = 25;
     $scope.loader = false;
+    $scope.titleMovie = '';
+    $scope.typeMovieId = 0;
+    $scope.filtered = true;
 
     $(".rt-filter-list").fadeIn(500);
 
@@ -380,16 +433,18 @@ function listCtrl($scope,GetAppService,$timeout){
             }
         }
     };
-    //Recherche de films par rapport aux filtres
-    $scope.filterMovie = function(){
-        var title = $(".filter-title").val();
-        var idType = $(".hf-filter-type-id").val();
-        if(title != "" && idType != null && idType != undefined){
-            alert('filtre');
+
+    //Recherche de films
+    $scope.searchMovie = function(filtered,firstLoad){
+        var title = '';
+        var idType = 0;
+        if(filtered){
+            title = $(".filter-title").val();
+            idType = $(".hf-filter-type-id").val();
+            $scope.titleMovie = title;
+            $scope.typeMovieId = idType;
         }
-    };
-    //Recherche de tous les films
-    $scope.searchMovie = function(firstLoad){
+        $scope.filtered = filtered;
         $scope.loader = true;
         $scope.panel=1;
         if(firstLoad){
@@ -399,15 +454,18 @@ function listCtrl($scope,GetAppService,$timeout){
         $(".rt-general").hide();
         $(".rt-result-list").fadeIn(500);
         $scope.listMovies = "";
-        var tempList = GetAppService.getAllList($scope);
+
+        var tempList = GetAppService.getListMovie($scope);   
         $timeout(function(){ $scope.$apply(function(){$scope.loader = false;
-        });}, 100);
+        });}, 150);
     };
     /******************************************************/
     /* LISTE DE FILMS                                     */
     /******************************************************/
     $scope.expand = function(e){
         $elem = $(e.currentTarget);
+        $badgeMovie = $(".movie_nb_disc_badge");
+        $badgeMovieTarget = $("#" + e.currentTarget.id + " span.movie_nb_disc_badge");
         $colorMovie = $(".color_movies_pret");
         $colorMovieTarget = $("#" + e.currentTarget.id + " div.color_movies_pret");
         $btnEditMovie = $(".btn_edit_movie");
@@ -425,6 +483,11 @@ function listCtrl($scope,GetAppService,$timeout){
 
         //Agrandissement du contenu
         $elem.addClass('ra_list_movies').siblings().removeClass('ra_list_movies');
+
+        //Traitement du badge
+        $badgeMovie.removeClass('movie_nb_disc_badge_xs').addClass('movie_nb_disc_badge_sm');
+        $badgeMovieTarget.removeClass('movie_nb_disc_badge_sm').addClass('movie_nb_disc_badge_xs');
+
         //Traitement de la banière couleur
         $colorMovie.removeClass('color_movie_pret_xs').addClass('color_movie_pret_sm');
         $colorMovieTarget.removeClass('color_movie_pret_sm').addClass('color_movie_pret_xs');
@@ -465,11 +528,18 @@ function listCtrl($scope,GetAppService,$timeout){
         
   $scope.pageChanged = function() {
     $scope.getPage(); 
-    $scope.searchMovie(false);
+    $scope.searchMovie($scope.filtered,false);
   };
 }
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                      NAV CONTROLLER                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 function navCtrl($scope){
     $scope.menu='home';

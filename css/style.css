@@ -415,7 +415,7 @@ input.text{
 }
 .movie_title{
 	font-weight: bold;
-	font-size: 1.2em;
+	font-size: 1em;
 	
 }
 .movie_title_xs{
@@ -424,8 +424,16 @@ input.text{
 .movie_title_sm{
 	float:left;
 }
-.movie_nbMovie{
-	
+.movie_nb_disc_badge_sm{
+	display: block;
+	float:right;
+	margin-right:-10px;
+	text-align: center;
+	color:rgba(4,174,218,1);
+	background-color: rgba(34,34,34,1);
+}
+.movie_nb_disc_badge_xs{
+	display: none;
 }
 .movie_nbMovie_xs{
 	float:none;
@@ -438,22 +446,15 @@ input.text{
 .movie_nbMovie_sm i{
 	display: none;
 }
-.movie_nbDisc{
-	
-}
 .movie_nbDisc_xs{
 	float:none;
 	line-height: 20px;
 }
 .movie_nbDisc_sm{
-	float:right;
-	margin-right:20px;
+	display: none;
 }
 .movie_nbDisc_sm i{
 	display: none;
-}
-.movie_type{
-	
 }
 .movie_type_xs{
 	display: block;
@@ -464,9 +465,6 @@ input.text{
 	display: none;
 }
 
-.movie_avis{
-		
-}
 .movie_avis_xs{
 	display:block;
 	float:none;
@@ -477,9 +475,6 @@ input.text{
 }
 .movie_list_icon{
 	margin:0 20px;
-}
-.btn_edit_movie{
-
 }
 .btn_edit_movie_xs{
 	display:block;

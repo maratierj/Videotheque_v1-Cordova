@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                         IMPORT DATA                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 function addData(){
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);
 	db.transaction(addDataAction,function(){
@@ -641,6 +648,13 @@ function addDataAction(tx){
 
 
 
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                        CREATION BDD                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 /******************************************************/
 /* GESTION DE L'IMPORTATION DES DONNEES               */
 /******************************************************/
@@ -824,7 +838,13 @@ function deleteDataBase(){
 
 
 
-
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                    FILTRE DES FILMS                               //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 function populateFilterTypeMovie($scope){
 	//Récupère la liste des types de films
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
@@ -847,18 +867,71 @@ function populateFilterTypeMovie($scope){
 }
 
 function listMovie($scope){
+	var sql = '';
+	if($scope.filtered){
+		if($scope.typeMovieId == 0){
+			sql = "SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+					"movie.title AS title,movie.num_movie AS num_movie," +
+					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+					"movie.date_maj AS date_maj,typemovies.type AS type," + 
+					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
+					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+					"(SELECT COUNT(*) FROM (SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+					"movie.title AS title,movie.num_movie AS num_movie," +
+					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+					"movie.date_maj AS date_maj,typemovies.type AS type," + 
+					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
+					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate" +
+					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+					" LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
+					" WHERE movie.title LIKE '%" + $scope.titleMovie + "%')) AS count " +
+					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+					" LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
+					" WHERE movie.title LIKE '%" + $scope.titleMovie + "%' " +
+					" LIMIT " + $scope.beginItems + "," + $scope.itemsPerPage + ";";
+		}
+		else{
+			sql = "SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+					"movie.title AS title,movie.num_movie AS num_movie," +
+					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+					"movie.date_maj AS date_maj,typemovies.type AS type," + 
+					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
+					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+					"(SELECT COUNT(*) FROM (SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+					"movie.title AS title,movie.num_movie AS num_movie," +
+					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+					"movie.date_maj AS date_maj,typemovies.type AS type," + 
+					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
+					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate" +
+					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+					" LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
+					" WHERE movie.title LIKE '%" + $scope.titleMovie + "%' AND typemovie.type_movie_id IN (" + $scope.typeMovieId + "))) AS count " +
+					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+					"LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
+					" WHERE movie.title LIKE '%" + $scope.titleMovie + "%' " + 
+					" AND typemovie.type_movie_id IN (" + $scope.typeMovieId + ")" + 
+					" LIMIT " + $scope.beginItems + "," + $scope.itemsPerPage + ";";
+		}
+	}
+	else{
+		sql = "SELECT movie.id AS id,movie.pret_id AS pret_id," + 
+				"movie.title AS title,movie.num_movie AS num_movie," +
+				"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
+				"movie.date_maj AS date_maj,typemovies.type AS type," + 
+				"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
+				"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+				"(SELECT count(*) FROM movie) AS count " + 
+				" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
+				" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
+				"LEFT JOIN movie_pret pret ON pret.id = movie.pret_id LIMIT " + $scope.beginItems + "," + $scope.itemsPerPage + ";";
+	}
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
 	db.transaction(function(tx){
-		tx.executeSql("SELECT movie.id AS id,movie.pret_id AS pret_id," + 
-						"movie.title AS title,movie.num_movie AS num_movie," +
-						"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
-						"movie.date_maj AS date_maj,typemovies.type AS type," + 
-						"pret.lastname AS lastname,pret.firstname AS firstname," +
-						"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
-						"(SELECT count(*) FROM movie) AS count " + 
-						" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
-						" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
-						"LEFT JOIN movie_pret pret ON pret.id = movie.pret_id LIMIT " + $scope.beginItems + "," + $scope.itemsPerPage + ";"
+		tx.executeSql(sql
 		,[],function(tx,response){
 			if (response != null && response.rows != null) {
 				var newJson = { $resources: [] };
@@ -877,6 +950,7 @@ function listMovie($scope){
             									nb_disc: row.nb_disc,
             									is_pret: row.is_pret,
             									title: row.title,
+            									type_movie_id : row.type_movie_id,
             									count: row.count};
 					if(nbItems == 0){
 						nbItems = row.count;
@@ -897,8 +971,13 @@ function listMovie($scope){
 }
 
 
-
-
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                     AJOUT D'UTILISATEUR                           //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 function lastUserAdd(){
 	//Récupère le dernier utilisateur ajouté
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
@@ -937,6 +1016,13 @@ function saveUser(firstname,lastname){
 		});
 	});
 }
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                      LISTE DES UTILISATEURS                       //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 function listUser($scope){
 	//Récupère la liste des utilisateurs
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
