@@ -17,6 +17,9 @@ app.factory('GetAppService',function($rootScope){
 		},
 		getListMovie : function($rootScope){
 			listMovie($rootScope);
+		},
+		getMovieAvisAll : function($rootScope){
+			allMovieAvis($rootScope);
 		}
 	}
 });

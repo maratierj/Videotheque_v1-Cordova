@@ -619,6 +619,7 @@ function addDataAction(tx){
 	tx.executeSql("INSERT INTO movie_typemovies(type)VALUES('Comédie')");
 	tx.executeSql("INSERT INTO movie_typemovies(type)VALUES('Drame')");
 	tx.executeSql("INSERT INTO movie_typemovies(type)VALUES('Animation')");
+	tx.executeSql("INSERT INTO movie_typemovies(type)VALUES('Série')");
 
 
 	//TEST
@@ -639,11 +640,15 @@ function addDataAction(tx){
 	tx.executeSql("INSERT INTO movie_pret(lastname,firstname,is_pret)VALUES('Ménard','Martial',1)");
 	tx.executeSql("INSERT INTO movie_pret(lastname,firstname,is_pret)VALUES('Maratier','Mathieu',0)");
 
-	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,3,1)");
-	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,1,2)");
-	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,4,3)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,7,1)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,3,2)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(1,8,3)");
 	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(2,1,1)");
 	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(2,2,3)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(3,5,3)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(4,5,1)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(4,5,2)");
+	tx.executeSql("INSERT INTO movie_rate(movie_id,rate,type_avis_id)VALUES(4,5,3)");
 }
 
 
@@ -849,7 +854,7 @@ function populateFilterTypeMovie($scope){
 	//Récupère la liste des types de films
 	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
 	db.transaction(function(tx){
-		tx.executeSql("SELECT * FROM movie_typemovies;",[],function(tx,response){
+		tx.executeSql("SELECT * FROM movie_typemovies ORDER BY type;",[],function(tx,response){
 			if (response != null && response.rows != null) {
 				var newJson = { $resources: [] };
 				for (var k = 0; k < response.rows.length; k++) {
@@ -875,13 +880,13 @@ function listMovie($scope){
 					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
 					"movie.date_maj AS date_maj,typemovies.type AS type," + 
 					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
-					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+					"(round((SELECT SUM(rate * 1.0) FROM movie_rate WHERE movie_id = movie.id) / (SELECT count(*) FROM movie_typeavis))) AS round_rate," +
 					"(SELECT COUNT(*) FROM (SELECT movie.id AS id,movie.pret_id AS pret_id," + 
 					"movie.title AS title,movie.num_movie AS num_movie," +
 					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
 					"movie.date_maj AS date_maj,typemovies.type AS type," + 
 					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
-					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate" +
+					"(round((SELECT SUM(rate * 1.0) FROM movie_rate WHERE movie_id = movie.id) / (SELECT count(*) FROM movie_typeavis))) AS round_rate" +
 					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
 					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
 					" LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
@@ -898,13 +903,13 @@ function listMovie($scope){
 					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
 					"movie.date_maj AS date_maj,typemovies.type AS type," + 
 					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
-					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+					"(round((SELECT SUM(rate * 1.0) FROM movie_rate WHERE movie_id = movie.id) / (SELECT count(*) FROM movie_typeavis))) AS round_rate," +
 					"(SELECT COUNT(*) FROM (SELECT movie.id AS id,movie.pret_id AS pret_id," + 
 					"movie.title AS title,movie.num_movie AS num_movie," +
 					"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
 					"movie.date_maj AS date_maj,typemovies.type AS type," + 
 					"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
-					"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate" +
+					"(round((SELECT SUM(rate * 1.0) FROM movie_rate WHERE movie_id = movie.id) / (SELECT count(*) FROM movie_typeavis))) AS round_rate" +
 					" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
 					" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
 					" LEFT JOIN movie_pret pret ON pret.id = movie.pret_id " + 
@@ -923,7 +928,7 @@ function listMovie($scope){
 				"movie.nb_disc AS nb_disc,movie.is_pret AS is_pret," + 
 				"movie.date_maj AS date_maj,typemovies.type AS type," + 
 				"pret.lastname AS lastname,pret.firstname AS firstname,typemovie.type_movie_id AS type_movie_id," +
-				"(SELECT round(avg(rate),0) FROM movie_rate WHERE movie_id = movie.id) AS round_rate," +
+				"(round((SELECT SUM(rate * 1.0) FROM movie_rate WHERE movie_id = movie.id) / (SELECT count(*) FROM movie_typeavis))) AS round_rate," +
 				"(SELECT count(*) FROM movie) AS count " + 
 				" FROM movie movie LEFT JOIN movie_typemovie typemovie ON movie.id = typemovie.movie_id" +
 				" LEFT JOIN movie_typemovies typemovies ON typemovies.id = typemovie.type_movie_id " +
@@ -962,6 +967,31 @@ function listMovie($scope){
 					$('.pagination-content').removeClass('hide');
 				}
 				$scope.getPage();				
+			}
+		},function(tx,error){
+			//log
+			alert('error tableExists')
+		});
+	});
+}
+
+function allMovieAvis($scope){
+	//Récupère la liste de tous les avis d'un film
+	db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+	db.transaction(function(tx){
+		tx.executeSql("SELECT movie_typeavis.id,movie_typeavis.name," + 
+						"(SELECT rate FROM movie_rate WHERE type_avis_id = movie_typeavis.id AND movie_id = " + $scope.movie.id + ") AS rate " + 
+ 						"FROM movie_typeavis ORDER BY name;",[],function(tx,response){
+			if (response != null && response.rows != null) {
+				var newJson = { $resources: [] };
+				for (var k = 0; k < response.rows.length; k++) {
+
+                    var row = response.rows.item(k);
+                    var resultRate = 0;
+                    row.rate == null ? resultRate = 0 : resultRate = row.rate;
+                    newJson.$resources[k] = { id: row.id , name: row.name, rate: resultRate};
+                }
+				$scope.listAvis = newJson;
 			}
 		},function(tx,error){
 			//log

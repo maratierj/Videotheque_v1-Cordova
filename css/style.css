@@ -9,6 +9,26 @@
 /*Angular ui bootstrap*/
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
+ .rt-config-user, .rt-add-user, .rt-import-data,.rt-save-data,.rt-filter-list,.rt-result-list,.rt-parameters,.rt-movie-detail{
+	width:100%;
+	/*background-color:rgba(40,40,40,1);*/
+	background-color:rgba(4,174,218,1);
+	text-align: center;
+	padding:5px 5px; 
+	font-family:Arial, sans-serif; 
+	font-size:1em;
+	/*color:rgba(4,174,218,1);*/
+	color:#FFF;
+	position:absolute;
+	top:2px; left:0;
+	height:30px;
+	z-index: 100;
+	display:none;
+}
+ .rt-config-user i, .rt-add-user i, .rt-import-data i,.rt-save-data i,.rt-filter-list i,.rt-result-list i,.rt-parameters i,.rt-movie-detail i{
+	margin-top:2px;
+}
+
 a{
 	text-decoration: none !important;
 }
@@ -473,6 +493,17 @@ input.text{
 .movie_avis_sm{
 	display: none;
 }
+.vote{
+	  display: inline-block;
+}
+.vote_bar{
+	width: 150px;
+	height: 8px;
+	background-color: rgba(53,53,53,1);
+}
+.vote_progress{
+	height: 8px;
+}
 .movie_list_icon{
 	margin:0 20px;
 }
@@ -499,6 +530,12 @@ input.text{
 	bottom:20px;
 	right:20px;
 	font-weight: normal;
+}
+/*----------------------------------------------------*\
+		$MOVIE DETAIL
+/*----------------------------------------------------*/
+.panel-movie-detail{
+	padding-top:50px;
 }
 
 /*----------------------------------------------------*\
@@ -534,25 +571,6 @@ input.text{
  }
 
 
- .rt-config-user, .rt-add-user, .rt-import-data,.rt-save-data,.rt-filter-list,.rt-result-list,.rt-parameters{
-	width:100%;
-	/*background-color:rgba(40,40,40,1);*/
-	background-color:rgba(4,174,218,1);
-	text-align: center;
-	padding:5px 5px; 
-	font-family:Arial, sans-serif; 
-	font-size:1em;
-	/*color:rgba(4,174,218,1);*/
-	color:#FFF;
-	position:absolute;
-	top:2px; left:0;
-	height:30px;
-	z-index: 100;
-	display:none;
-}
- .rt-config-user i, .rt-add-user i, .rt-import-data i,.rt-save-data i{
-	margin-top:2px;
-}
 /*Config user */
 .ra_config_user{
 	width:100%;

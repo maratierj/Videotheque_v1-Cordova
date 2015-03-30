@@ -44,18 +44,30 @@
 			<section class="list-movies">
 				<div class="row-list-movies" ng-click="expand($event)" id="{{m.id}}" ng-repeat="m in listMovies.$resources">
 					<div class="color_movies_pret color_movie_pret_sm" ng-class="{color_movie_available:m.is_pret==0,color_movie_notavailable:m.is_pret==1}"></div>
-					<span class="btn_edit_movie btn_edit_movie_sm"><a class="edit_movie" ng-click="editMovie(m.id)" ><i class="icon-pencil"></i>&nbsp;Modifier</a></span>
+					<span class="btn_edit_movie btn_edit_movie_sm"><a class="edit_movie" ng-click="editMovie(m)" ><i class="icon-search"></i>&nbsp;&nbsp;D&eacute;tail</a></span>
 					<div class="movie_title movie_title_sm">{{m.title}}</div>
 					<span class="movie_nb_disc_badge movie_nb_disc_badge_sm badge">{{m.nb_disc}}</span>
 					<div class="movie_nbMovie movie_nbMovie_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; film : <span class="cGrey">{{m.num_movie}}</span></div>
 					<div class="movie_nbDisc movie_nbDisc_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; disque : <span class="cGrey">{{m.nb_disc}}</span></div>
 					<div class="movie_type movie_type_sm"><i class="movie_list_icon icon-caret-right"></i>Type : <span class="cGrey">{{m.type}}</span></div>
-					<div class="movie_avis movie_avis_sm"><i class="movie_list_icon icon-caret-right"></i>Avis : <span class="cGrey">{{m.round_rate}}</span></div>
+					<div class="movie_avis movie_avis_sm"><i class="movie_list_icon icon-caret-right"></i>Avis : <input type="hidden" class="avis-value" value="{{m.round_rate}}" />
+						<div class="vote">
+							<div class="vote_bar">
+								<div class="vote_progress">
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
 				</div>
+			</section>
+		</section>	
+		<div class="rt-movie-detail rt-general"><i class="icon-search fleft"></i>D&eacute;tail</div>	
+		<section class="panel right panel-overflow panel-movie-detail"  ng-class="{center:panel==2,right_inactive:panel<2,right:panel<1}">
+			<p>Titre  : {{movie.title}}</p>
+			<div class="detail-movie-avis" id="{{m.id}}" ng-repeat="a in listAvis.$resources">
+				{{a.name}} : {{a.rate}}
 			</div>
-		</section>		
-		<section class="panel right panel-overflow"  ng-class="{center:panel==2,right_inactive:panel<2}">
-
 		</section>
 	</section>
 </section>

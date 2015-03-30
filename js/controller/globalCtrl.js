@@ -375,6 +375,11 @@ function listCtrl($scope,GetAppService,$timeout){
     $scope.backConfig = function(panel){
         if(panel == 2){
             $scope.panel=1;
+            if($('.pagination-content').hasClass('hide')){
+                $('.pagination-content').removeClass('hide');
+            }
+            $(".rt-movie-detail").hide();
+            $(".rt-result-list").fadeIn(500);  
         }
         else if(panel ==1){
             $(".view").css("overflow-x","hidden");
@@ -480,6 +485,8 @@ function listCtrl($scope,GetAppService,$timeout){
         $typeMovieTarget = $("#" + e.currentTarget.id + " div.movie_type");
         $avisMovie = $(".movie_avis");
         $avisMovieTarget = $("#" + e.currentTarget.id + " div.movie_avis");
+        $avisValueTarget = $("#" + e.currentTarget.id + " input.avis-value");
+        $avisBarTarget = $("#" + e.currentTarget.id + " div.vote_progress");
 
         //Agrandissement du contenu
         $elem.addClass('ra_list_movies').siblings().removeClass('ra_list_movies');
@@ -516,11 +523,36 @@ function listCtrl($scope,GetAppService,$timeout){
         $avisMovie.removeClass('movie_avis_xs').addClass('movie_avis_sm');
         $avisMovieTarget.removeClass('movie_avis_sm').addClass('movie_avis_xs');
 
+        //Traitement de la barre d'avis
+        var color = '';
+        if(0 <= Number($avisValueTarget.val()) &&  Number($avisValueTarget.val()) <= 2){
+            color = 'rgba(201,48,44,1)';
+        }
+        else if(3 <= Number($avisValueTarget.val()) && Number($avisValueTarget.val()) <= 5){
+            color = 'rgba(236,151,31,1)';
+        }
+        else if(Number($avisValueTarget.val()) > 5){
+            color = 'rgba(68,157,68,1)';
+        }
+        $avisBarTarget .css("width", $avisValueTarget.val() + "0%");
+        $avisBarTarget .css("background-color",color);
+
         //Ajout de la classe tapped sur le bouton
         addDynamicTappedClass("btn_edit_movie");
     };
-    $scope.editMovie = function(idMovie){
-        alert(idMovie);
+    $scope.editMovie = function(movie){
+        $scope.panel = 2;
+        $scope.movie = movie;
+
+        $(".rt-result-list").hide();
+        $(".rt-movie-detail").fadeIn(500);
+        if(!$('.pagination-content').hasClass('hide')){
+            $('.pagination-content').addClass('hide');
+        }
+        $scope.listAvis = '';
+        var tempList = GetAppService.getMovieAvisAll($scope);   
+        $timeout(function(){ $scope.$apply(function(){$scope.loader = false;
+        });}, 150);
     };
     $scope.getPage = function(){
         $scope.beginItems = (($scope.currentPage - 1) * $scope.itemsPerPage);
