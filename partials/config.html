@@ -54,8 +54,7 @@
 				</div>
 			</section>
 			<section class="config-user" ng-class="{right_active:config_action==1,right_inactive:config_action!=1}">				
-				<form class="frm-config-user">	
-					<!--<a class="test" ng-click="test()">test</a>-->				
+				<form class="frm-config-user">					
 					<div class="row-config-user" ng-click="expand($event)" id="{{u.id}}" ng-repeat="u in userList.$resources">
 						<script type="text/ng-template" id="mdEditUser.html">
 					        <div class="modal-header md-user-edit-title">

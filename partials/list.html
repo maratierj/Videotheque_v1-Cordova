@@ -4,8 +4,7 @@
 		<div class="loader" ng-show="loader"></div>
 		<a class="back" ng-hide="panel==0" ng-click="backConfig(panel)"><i class="icon-circle-arrow-left icon-2x"></i></a>
 		<div class="rt-filter-list rt-general"><i class="icon-filter fleft"></i>Recherche de films</div>
-		<section class="panel panel-padding-2x center panel-overflow" ng-init="initSection0" ng-class="{center:panel==0,left:panel>0}">
-			
+		<section class="panel panel-padding-2x center panel-overflow panel-movie-filter" >			
 			<form class="frm-filter">
 				<p><label>Titre :</label><input type="text" class="text filter-title" placeholder="Titre du film" /></p>
 				<input type="hidden" class="hf-filter-type-id" value="0" />
@@ -34,13 +33,13 @@
 
 		</section>
 		<div class="rt-result-list rt-general"><i class="icon-film fleft"></i>Liste des films</div>
-		<div class="pagination-content hide"><pagination boundary-links="true" 
+		<div class="pagination-content"><pagination boundary-links="true" 
           max-size="5"
           items-per-page="itemsPerPage"
           total-items="totalItems" 
           ng-model="currentPage" 
           ng-change="pageChanged()"></pagination></div>
-		<section class="panel right panel-overflow panel-movie-list" ng-init="initSection1"  ng-class="{center:panel==1,right:panel<1,left:panel>1}">
+		<section class="panel right panel-overflow panel-movie-list" >
 			<section class="list-movies">
 				<div class="row-list-movies" ng-click="expand($event)" id="{{m.id}}" ng-repeat="m in listMovies.$resources">
 					<div class="color_movies_pret color_movie_pret_sm" ng-class="{color_movie_available:m.is_pret==0,color_movie_notavailable:m.is_pret==1}"></div>
@@ -49,7 +48,7 @@
 					<span class="movie_nb_disc_badge movie_nb_disc_badge_sm badge">{{m.nb_disc}}</span>
 					<div class="movie_nbMovie movie_nbMovie_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; film : <span class="cGrey">{{m.num_movie}}</span></div>
 					<div class="movie_nbDisc movie_nbDisc_sm"><i class="movie_list_icon icon-caret-right"></i>N&ordm; disque : <span class="cGrey">{{m.nb_disc}}</span></div>
-					<div class="movie_type movie_type_sm"><i class="movie_list_icon icon-caret-right"></i>Type : <span class="cGrey">{{m.type}}</span></div>
+					<div class="movie_type movie_type_sm"><i class="movie_list_icon icon-caret-right"></i>Genre : <span class="cGrey">{{m.type}}</span></div>
 					<div class="movie_avis movie_avis_sm"><i class="movie_list_icon icon-caret-right"></i>Avis : <input type="hidden" class="avis-value" value="{{m.round_rate}}" />
 						<div class="vote">
 							<div class="vote_bar">
@@ -63,10 +62,55 @@
 			</section>
 		</section>	
 		<div class="rt-movie-detail rt-general"><i class="icon-search fleft"></i>D&eacute;tail</div>	
-		<section class="panel right panel-overflow panel-movie-detail"  ng-class="{center:panel==2,right_inactive:panel<2,right:panel<1}">
-			<p>Titre  : {{movie.title}}</p>
-			<div class="detail-movie-avis" id="{{m.id}}" ng-repeat="a in listAvis.$resources">
-				{{a.name}} : {{a.rate}}
+		<section class="panel right panel-overflow panel-movie-detail"  >
+			<div class="detail-movie-content">
+				<form class="frm-detail-movie">
+					<p>
+						<label>Titre : </label>
+						<br/>	
+						<input class="text field-movie-detail enable-detail" type="text" value="{{movie.title}}" />
+						<span class="detail-movie-edit" style="display:none;"><a ng-click="edit(title)"><i class="icon-edit-sign icon-2x"></i></a></span>
+						<span class="detail-movie-save">
+							<span class="detail-movie-validate"><a ng-click="validate(titre)"><i class="icon-ok-circle icon-2x icon-inherit"></i></a></span>
+							<span class="detail-movie-cancel"><a ng-click="validate(titre)"><i class="icon-remove-circle icon-2x icon-inherit"></i></a></span>
+						</span>
+					</p>
+					<p>
+						<label>Num&eacute;ro du film : </label>
+						<br/>
+						<input class="text field-movie-detail disable-detail" type="text" value="{{movie.num_movie}}" disabled />
+						<span class="detail-movie-edit"><a ng-click="edit(numMovie)"><i class="icon-edit-sign icon-2x"></i></a></span>
+					</p>
+					<p>
+						<label>Num&eacute;ro du disque : </label>
+						<br/>
+						<input class="text field-movie-detail disable-detail" type="text" value="{{movie.nb_disc}}" disabled/>
+						<span class="detail-movie-edit"><a ng-click="edit(nbDisc)"><i class="icon-edit-sign icon-2x"></i></a></span>
+					</p>
+					<p>
+						<label>genre : </label>
+						<br/>
+						<input type="hidden" class="hf-filter-type-detail-id" value="{{movie.type_movie_id}}" />
+						<div class="btn-group" dropdown>
+					      	<button type="button" class="dropdown filter-type-detail disable-detail" dropdown-toggle disabled>
+					        	{{movie.type}}<span class="caret"></span>
+					      	</button>
+					      	<ul class="dropdown-menu" role="menu">
+						      	<li>
+						      		<a href="" ng-click="selectFilter(0,'Tous')">Tous</a>
+						      	</li>
+						        <li ng-repeat="f in listFilter.$resources">
+						          	<a href ng-click="selectFilter(f.id,f.type)">{{f.type}}</a>
+						        </li>
+					      	</ul>
+		    			</div>
+						<span class="detail-movie-edit-ddl"><a ng-click="edit(title)"><i class="icon-edit-sign icon-2x"></i></a></span>
+					</p>
+				</form>
+				<p><label>Avis : </label></p>
+				<div class="detail-movie-avis" id="{{m.id}}" ng-repeat="a in listAvis.$resources">
+					<i class="movie_list_icon icon-caret-right"></i><span class="avis-detail">{{a.name}} :</span> {{a.rate}}
+				</div>
 			</div>
 		</section>
 	</section>

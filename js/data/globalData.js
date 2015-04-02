@@ -963,9 +963,7 @@ function listMovie($scope){
                 }
 				$scope.listMovies = newJson;
 				$scope.totalItems = nbItems;
-				if($('.pagination-content').hasClass('hide')){
-					$('.pagination-content').removeClass('hide');
-				}
+				
 				$scope.getPage();				
 			}
 		},function(tx,error){

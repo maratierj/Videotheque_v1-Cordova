@@ -51,9 +51,8 @@ function modalCtrl ($scope, $modalInstance,users) {
     $scope.cancelEdit = function () {
         $modalInstance.dismiss('cancel');
     };
-    $scope.deleteUser = function () {          
-              
-        //deleteUserData(users,$modalInstance);
+    $scope.deleteUser = function () {             
+        deleteUserData(users,$modalInstance);
     };
     $scope.cancelDelete = function () {
         $modalInstance.dismiss('cancel');
@@ -184,8 +183,10 @@ function configCtrl($scope,GetAppService,$timeout,$modal,$log){
         $scope.initConfigUser();
     };
     $scope.initConfigUser = function(){
+        $scope.loader = true;
         var tempList = GetAppService.getUsers($scope);
         $timeout(function(){ $scope.$apply(function(){
+            $scope.loader = false;
         });}, 50);
     };
 
@@ -375,20 +376,49 @@ function listCtrl($scope,GetAppService,$timeout){
     $scope.backConfig = function(panel){
         if(panel == 2){
             $scope.panel=1;
-            if($('.pagination-content').hasClass('hide')){
-                $('.pagination-content').removeClass('hide');
-            }
             $(".rt-movie-detail").hide();
-            $(".rt-result-list").fadeIn(500);  
+            $(".rt-result-list").fadeIn(500);
+
+            $('.panel-movie-detail').translate3d(
+                { x: '100%', y: '0px', z: '0px'},
+                true,
+                500,
+                function(){}
+            );
+
+            $('.panel-movie-list').translate3d(
+                { x: 0, y: 0, z: 0},
+                false,
+                500,
+                function(){
+                    $('.pagination-content').fadeIn(300);
+                }
+            );
+
+            
         }
         else if(panel ==1){
             $(".view").css("overflow-x","hidden");
-            if(!$('.pagination-content').hasClass('hide')){
-                $('.pagination-content').addClass('hide');
-            }
             $scope.panel=0;
             $(".rt-general").hide();
             $(".rt-filter-list").fadeIn(500);
+            $('.pagination-content').fadeOut(100);
+            $('.panel-movie-list').translate3d(
+                {  x: '100%', y: '0px', z: '0px'},
+                true,
+                500,
+                function(){}
+            );
+
+            $('.panel-movie-filter').translate3d(
+                { x: 0, y: 0, z: 0},
+                false,
+                500,
+                function(){
+                    $('.pagination-content').fadeOut(300);
+                }
+            );
+            
         }
     };
     function addDynamicTappedClass(domClass){
@@ -441,6 +471,7 @@ function listCtrl($scope,GetAppService,$timeout){
 
     //Recherche de films
     $scope.searchMovie = function(filtered,firstLoad){
+        $(".view").css("overflow-x","initial");
         var title = '';
         var idType = 0;
         if(filtered){
@@ -451,19 +482,38 @@ function listCtrl($scope,GetAppService,$timeout){
         }
         $scope.filtered = filtered;
         $scope.loader = true;
-        $scope.panel=1;
+        
         if(firstLoad){
             $scope.currentPage  = 1;
             $scope.beginItems = 0;
         }
-        $(".rt-general").hide();
-        $(".rt-result-list").fadeIn(500);
         $scope.listMovies = "";
 
         var tempList = GetAppService.getListMovie($scope);   
-        $timeout(function(){ $scope.$apply(function(){$scope.loader = false;
+        $timeout(function(){ $scope.$apply(function(){
+            $scope.loader = false;
+            $(".rt-general").hide();
+            $scope.panel=1;
+            $(".rt-result-list").fadeIn(500);
+            $('.panel-movie-filter').translate3d(
+                { x: '-100%', y: '0px', z: '0px'},
+                true,
+                500,
+                function(){
+                    $('.pagination-content').fadeOut(300);
+                }
+            );
+            $('.panel-movie-list').translate3d(
+                { x: 0, y: 0, z: 0},
+                false,
+                500,
+                function(){
+                    $('.pagination-content').fadeIn(100);
+                }
+            );
         });}, 150);
     };
+
     /******************************************************/
     /* LISTE DE FILMS                                     */
     /******************************************************/
@@ -540,18 +590,38 @@ function listCtrl($scope,GetAppService,$timeout){
         //Ajout de la classe tapped sur le bouton
         addDynamicTappedClass("btn_edit_movie");
     };
-    $scope.editMovie = function(movie){
+    $scope.editMovie = function(movie){ 
         $scope.panel = 2;
         $scope.movie = movie;
+        $scope.loader = true;
 
         $(".rt-result-list").hide();
         $(".rt-movie-detail").fadeIn(500);
-        if(!$('.pagination-content').hasClass('hide')){
-            $('.pagination-content').addClass('hide');
-        }
+
+        $('.pagination-content').fadeOut(300);
+
         $scope.listAvis = '';
         var tempList = GetAppService.getMovieAvisAll($scope);   
-        $timeout(function(){ $scope.$apply(function(){$scope.loader = false;
+        $timeout(function(){ $scope.$apply(function(){
+            $('.panel-movie-list').translate3d(
+                { x: '-100%', y: '0px', z: '0px'},
+                true,
+                500,
+                function(){
+                    $('.pagination-content').fadeOut(300);
+                }
+            );
+
+
+            $scope.loader = false;
+            $('.panel-movie-detail').translate3d(
+                { x: 0, y: 0, z: 0},
+                false,
+                500,
+                function(){
+
+                }
+            );
         });}, 150);
     };
     $scope.getPage = function(){
