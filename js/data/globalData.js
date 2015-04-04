@@ -944,18 +944,32 @@ function listMovie($scope){
 				for (var k = 0; k < response.rows.length; k++) {
 
                     var row = response.rows.item(k);
+                    var typeResult = row.type;
+                    var typeIdresult = row.type_movie_id;
+                    var userFullnameresult = row.firstname + " " + row.lastname;
+                    var userIdresult = row.pret_id;
+
+                    if(row.type == null){
+                		typeResult = 'Tous';
+                		typeIdresult = 0;
+                    }
+                    if(row.pret_id == null){
+                    	userFullnameresult = "Aucun";
+                    	userIdresult = 0;
+                    }
                     newJson.$resources[k] = { id: row.id ,
-                								pret_id: row.pret_id,
+                								pret_id: userIdresult,
                 								date_maj:row.date_maj,
-                								type: row.type,
+                								type: typeResult,
                 								lastname: row.lastname,
                 								firstname: row.firstname,
+                								fullname: userFullnameresult,
                 								round_rate: row.round_rate,
                 								num_movie: row.num_movie,
             									nb_disc: row.nb_disc,
             									is_pret: row.is_pret,
             									title: row.title,
-            									type_movie_id : row.type_movie_id,
+            									type_movie_id : typeIdresult,
             									count: row.count};
 					if(nbItems == 0){
 						nbItems = row.count;
@@ -987,7 +1001,7 @@ function allMovieAvis($scope){
                     var row = response.rows.item(k);
                     var resultRate = 0;
                     row.rate == null ? resultRate = 0 : resultRate = row.rate;
-                    newJson.$resources[k] = { id: row.id , name: row.name, rate: resultRate};
+                    newJson.$resources[k] = { id: row.id , name: row.name, rate: resultRate, html_id: "stars_" + row.id};
                 }
 				$scope.listAvis = newJson;
 			}
@@ -997,6 +1011,126 @@ function allMovieAvis($scope){
 		});
 	});
 }
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+//                                                                   //
+//                    MODIFICATION D'UN FILMS                        //
+//                                                                   //
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+function editField(field,value,movieId,oldUserId){
+	var sql = "";
+	switch(field){
+		case 'title':
+			sql="UPDATE movie SET title = '" + value.replace("'","''") + "' WHERE id = " + movieId + " ";
+		break;
+		case 'numMovie':
+			sql="UPDATE movie SET num_movie = " + value + " WHERE id = " + movieId + " ";
+		break;
+		case 'nbDisc':
+			sql="UPDATE movie SET nb_disc = " + value + " WHERE id = " + movieId + " ";
+		break;
+		case 'type':
+			sql="UPDATE movie_typemovie SET type_movie_id = " + value + " WHERE movie_id = " + movieId + " ";
+		break;
+		case 'pret':
+			if(value == 0){
+				sql="UPDATE movie SET pret_id = NULL, is_pret = 0 WHERE id = " + movieId + " ";
+			}
+			else{
+				sql="UPDATE movie SET pret_id = " + value + ", is_pret = 1 WHERE id = " + movieId + " ";
+			}
+			
+		break;
+	}
+	if(field == 'pret'){
+		db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+		db.transaction(function(tx){
+			tx.executeSql("SELECT COUNT(*) AS result FROM movie WHERE pret_id = " + value + ";",[],function(tx,response){
+				//Si aucun film n'est attribué à l'utilisateur alors on est forcément dans le cas d'un ajout
+				if(response.rows.item(0).result == 0){
+					db.transaction(function(tx){								
+						tx.executeSql("UPDATE movie_pret SET is_pret = 1 WHERE id = " + value + ";",[],function(tx,response){
+							//Une fois fait il faut vérifier la modification à apporter dans le cas ou il y avait un autre utilisateur avant
+							if(oldUserId != 0){															
+								db.transaction(function(tx){tx.executeSql("SELECT COUNT(*) AS result FROM movie WHERE pret_id = " + oldUserId + "",[],function(tx,response){
+									if(response.rows.item(0).result == 1){
+										db.transaction(function(tx){tx.executeSql("UPDATE movie_pret SET is_pret = 0 WHERE id = " + oldUserId + " ",[],function(tx,response){
+											db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+										},function(tx,error){alert('error tableExists')});});
+									}
+									else{
+										db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+									}
+								},function(tx,error){alert('error tableExists')});});
+							}
+							else{
+								db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+							}								
+						},function(tx,error){
+							//log
+							alert('error tableExists')
+						});
+					});
+				}
+				//si le résultat est supérieur à 0 on peut être dans le cas d'un ajout auquel cas on ne fait rien de plus ou d'un suppression dans le cas on modifie que si l'utilisateur n'à qu'un seul film	
+				else if(response.rows.item(0).result == 1){
+					if(oldUserId != 0 && value != oldUserId){	
+						db.transaction(function(tx){tx.executeSql("SELECT COUNT(*) AS result FROM movie WHERE pret_id = " + oldUserId + "",[],function(tx,response){
+							if(response.rows.item(0).result == 1){
+								db.transaction(function(tx){tx.executeSql("UPDATE movie_pret SET is_pret = 0 WHERE id = " + oldUserId + " ",[],function(tx,response){
+									db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+								},function(tx,error){alert('error tableExists')});});
+							}
+							else{
+								db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+							}
+						},function(tx,error){alert('error tableExists')});});
+					}
+					else{
+						db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+					}
+				}	
+				else{
+					//Une fois fait il faut vérifier la modification à apporter dans le cas ou il y avait un autre utilisateur avant
+					if(oldUserId != 0){
+						db.transaction(function(tx){tx.executeSql("SELECT COUNT(*) AS result FROM movie WHERE pret_id = " + oldUserId + "",[],function(tx,response){
+							if(response.rows.item(0).result == 1){
+								db.transaction(function(tx){tx.executeSql("UPDATE movie_pret SET is_pret = 0 WHERE id = " + oldUserId + " ",[],function(tx,response){
+									db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+								},function(tx,error){alert('error tableExists')});});
+							}
+							else{
+								db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+							}
+						},function(tx,error){alert('error tableExists')});});
+					}
+					else{
+						db.transaction(function(tx){tx.executeSql(sql,[],function(tx,response){},function(tx,error){alert('error tableExists')});});
+					}
+				}							
+			},function(tx,error){
+				//log
+				alert('error tableExists')
+			});
+		});
+	}
+	else{
+		db = window.openDatabase("Videotheque_v1","1.0","Videotheque database",200000);	
+		db.transaction(function(tx){
+			tx.executeSql(sql,[],function(tx,response){
+				//Si on est dans le cas d'un pret
+
+			},function(tx,error){
+				//log
+				alert('error tableExists')
+			});
+		});
+	}
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -1061,7 +1195,8 @@ function listUser($scope){
 				for (var k = 0; k < response.rows.length; k++) {
 
                     var row = response.rows.item(k);
-                    newJson.$resources[k] = { id: row.id , lastname: row.lastname , firstname:row.firstname, is_pret:row.is_pret };
+
+                    newJson.$resources[k] = { id: row.id , lastname: row.lastname , firstname:row.firstname, is_pret:row.is_pret, fullname: row.firstname + " " + row.lastname };
                 }
 				$scope.userList = newJson;
 			}

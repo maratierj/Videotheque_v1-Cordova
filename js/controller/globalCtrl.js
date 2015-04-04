@@ -374,16 +374,48 @@ function listCtrl($scope,GetAppService,$timeout){
 
 
     $scope.backConfig = function(panel){
+        //TEST peut-etre va t'il falloir recharger le $scope.movie par toutes les valeurs sinon on reperd les modifications en cas de deuxième visualisation sans recharger la liste
+        alert($scope.movie.title);
+
         if(panel == 2){
             $scope.panel=1;
             $(".rt-movie-detail").hide();
-            $(".rt-result-list").fadeIn(500);
+            
+            //On va modifier la ligne du film mis à jour
+            var rowId = "rlistmovie_" + $scope.rowId;
+            //Couleur
+            var idUser = $('.hf-pret-detail-id').val();
+            if(idUser == 0){
+                if($("#" + rowId + " div.color_movie_pret_xs").hasClass('color_movie_notavailable')){
+                    $("#" + rowId + " div.color_movie_pret_xs").removeClass('color_movie_notavailable').addClass('color_movie_available');
+                }
+            }
+            else{
+                if($("#" + rowId + " div.color_movie_pret_xs").hasClass('color_movie_available')){
+                    $("#" + rowId + " div.color_movie_pret_xs").removeClass('color_movie_available').addClass('color_movie_notavailable');
+                }
+            }
+            
+            //Titre
+            $("#" + rowId + " div.movie_title_xs").html($(".field-title").val());
+            //Num movie
+            $("#" + rowId + " div.movie_nbMovie_xs span.cGrey").html($(".field-num-movie").val());
+            //Nb disc
+            $("#" + rowId + " div.movie_nb_disc_badge_xs").html($(".field-field-nb-disc").val());
+            $("#" + rowId + " div.movie_nbDisc_xs span.cGrey").html($(".field-field-nb-disc").val());
+            //Type
+            $("#" + rowId + " div.movie_type_xs span.cGrey").html($(".hf-filter-type-detail-name").val());
+            //Avis
+            $scope.updateAvis(rowId);
+
 
             $('.panel-movie-detail').translate3d(
                 { x: '100%', y: '0px', z: '0px'},
                 true,
                 500,
-                function(){}
+                function(){
+                    $(".rt-result-list").fadeIn(500);
+                }
             );
 
             $('.panel-movie-list').translate3d(
@@ -421,6 +453,31 @@ function listCtrl($scope,GetAppService,$timeout){
             
         }
     };
+
+    $scope.updateAvis = function(rowId){
+        var totalAvis = 0;
+        var nbAvis = 0;
+        $(".movie-avis-rate").each(function(){
+            totalAvis += parseInt($(this).val());
+            nbAvis++;
+        });
+        var result = Math.round(totalAvis / nbAvis);
+
+        var color = '';
+        if(0 <= result &&  result <= 2){
+            color = 'rgba(201,48,44,1)';
+        }
+        else if(3 <= result && result <= 5){
+            color = 'rgba(236,151,31,1)';
+        }
+        else if(result > 5){
+            color = 'rgba(68,157,68,1)';
+        }
+        $("#" + rowId + " div.vote_progress").css("width", result + "0%");
+        $("#" + rowId + " div.vote_progress").css("background-color",color);
+
+    };
+
     function addDynamicTappedClass(domClass){
         $('.' + domClass + ' a').on('touchstart', function(e){
             $(this).addClass('tapped');
@@ -442,10 +499,13 @@ function listCtrl($scope,GetAppService,$timeout){
     /******************************************************/
     /* RECHERCHE / FILTRES                                */
     /******************************************************/    
-    $scope.populateTypeMovie = function(){
+    $scope.populateLists = function(){
         $scope.listFilter = "";
-        var tempList = GetAppService.getFilters($scope);
+        var listFilter = GetAppService.getFilters($scope);
+        $scope.userList = '';
+        var listUser = GetAppService.getUsers($scope);
     };
+
     $scope.selectFilter = function(filterId,filterType){
         var htmlFilter = filterType + '&nbsp;<span class="caret"></span>';
         $(".hf-filter-type-id").val(filterId);
@@ -517,29 +577,29 @@ function listCtrl($scope,GetAppService,$timeout){
     /******************************************************/
     /* LISTE DE FILMS                                     */
     /******************************************************/
-    $scope.expand = function(e){
-        $elem = $(e.currentTarget);
+    $scope.expand = function(id){
+        var idElement = "rlistmovie_" + id;
         $badgeMovie = $(".movie_nb_disc_badge");
-        $badgeMovieTarget = $("#" + e.currentTarget.id + " span.movie_nb_disc_badge");
+        $badgeMovieTarget = $("#" + idElement + " span.movie_nb_disc_badge");
         $colorMovie = $(".color_movies_pret");
-        $colorMovieTarget = $("#" + e.currentTarget.id + " div.color_movies_pret");
+        $colorMovieTarget = $("#" + idElement + " div.color_movies_pret");
         $btnEditMovie = $(".btn_edit_movie");
-        $btnEditMovieTarget = $("#" + e.currentTarget.id + " span.btn_edit_movie");
+        $btnEditMovieTarget = $("#" + idElement + " span.btn_edit_movie");
         $titleMovie = $(".movie_title");
-        $titleMovieTarget = $("#" + e.currentTarget.id + " div.movie_title");
+        $titleMovieTarget = $("#" + idElement + " div.movie_title");
         $nbMovieMovie = $(".movie_nbMovie");
-        $nbMovieMovieTarget = $("#" + e.currentTarget.id + " div.movie_nbMovie");
+        $nbMovieMovieTarget = $("#" + idElement + " div.movie_nbMovie");
         $nbDiscMovie = $(".movie_nbDisc");
-        $nbDiscMovieTarget = $("#" + e.currentTarget.id + " div.movie_nbDisc");
+        $nbDiscMovieTarget = $("#" + idElement + " div.movie_nbDisc");
         $typeMovie = $(".movie_type");
-        $typeMovieTarget = $("#" + e.currentTarget.id + " div.movie_type");
+        $typeMovieTarget = $("#" + idElement + " div.movie_type");
         $avisMovie = $(".movie_avis");
-        $avisMovieTarget = $("#" + e.currentTarget.id + " div.movie_avis");
-        $avisValueTarget = $("#" + e.currentTarget.id + " input.avis-value");
-        $avisBarTarget = $("#" + e.currentTarget.id + " div.vote_progress");
+        $avisMovieTarget = $("#" + idElement + " div.movie_avis");
+        $avisValueTarget = $("#" + idElement + " input.avis-value");
+        $avisBarTarget = $("#" + idElement + " div.vote_progress");
 
         //Agrandissement du contenu
-        $elem.addClass('ra_list_movies').siblings().removeClass('ra_list_movies');
+        $("#" + idElement + "").addClass('ra_list_movies').siblings().removeClass('ra_list_movies');
 
         //Traitement du badge
         $badgeMovie.removeClass('movie_nb_disc_badge_xs').addClass('movie_nb_disc_badge_sm');
@@ -584,16 +644,18 @@ function listCtrl($scope,GetAppService,$timeout){
         else if(Number($avisValueTarget.val()) > 5){
             color = 'rgba(68,157,68,1)';
         }
-        $avisBarTarget .css("width", $avisValueTarget.val() + "0%");
-        $avisBarTarget .css("background-color",color);
+        $avisBarTarget.css("width", $avisValueTarget.val() + "0%");
+        $avisBarTarget.css("background-color",color);
 
         //Ajout de la classe tapped sur le bouton
         addDynamicTappedClass("btn_edit_movie");
     };
     $scope.editMovie = function(movie){ 
+        $scope.rowId = movie.id;
+        //alert($scope.currentPage + " # " + rowId);
         $scope.panel = 2;
         $scope.movie = movie;
-        $scope.loader = true;
+        $scope.loader = true;        
 
         $(".rt-result-list").hide();
         $(".rt-movie-detail").fadeIn(500);
@@ -601,6 +663,7 @@ function listCtrl($scope,GetAppService,$timeout){
         $('.pagination-content').fadeOut(300);
 
         $scope.listAvis = '';
+        initMovieValue();
         var tempList = GetAppService.getMovieAvisAll($scope);   
         $timeout(function(){ $scope.$apply(function(){
             $('.panel-movie-list').translate3d(
@@ -608,7 +671,8 @@ function listCtrl($scope,GetAppService,$timeout){
                 true,
                 500,
                 function(){
-                    $('.pagination-content').fadeOut(300);
+                    iconStarsValue();
+                    $('.pagination-content').fadeOut(300);                    
                 }
             );
 
@@ -619,7 +683,9 @@ function listCtrl($scope,GetAppService,$timeout){
                 false,
                 500,
                 function(){
-
+                    $('.field-movie-detail').prop('disabled',true);
+                    $('.field-type').prop('disabled',true);
+                    $('.field-pret').prop('disabled',true);
                 }
             );
         });}, 150);
@@ -628,10 +694,164 @@ function listCtrl($scope,GetAppService,$timeout){
         $scope.beginItems = (($scope.currentPage - 1) * $scope.itemsPerPage);
     };
         
-  $scope.pageChanged = function() {
-    $scope.getPage(); 
-    $scope.searchMovie($scope.filtered,false);
-  };
+    $scope.pageChanged = function() {
+        $scope.getPage(); 
+        $scope.searchMovie($scope.filtered,false);
+    };
+
+/******************************************************/
+/* DETAIL D'UN FILMS                                  */
+/******************************************************/
+    function initMovieValue(){
+        $('.field-title').val($scope.movie.title);
+        $('.field-num-movie').val($scope.movie.num_movie);
+        $('.field-nb-disc').val($scope.movie.nb_disc);
+        $('.field-type').html($scope.movie.type + '&nbsp;<span class="caret"></span>');
+        $('.hf-filter-type-detail-id').val($scope.movie.type_movie_id);
+        $('.hf-filter-type-detail-name').val($scope.movie.type);
+        $('.field-pret').html($scope.movie.fullname + '&nbsp;<span class="caret"></span>');
+        $('.hf-pret-detail-id').val($scope.movie.pret_id);        
+        $('.hf-pret-old-detail-id').val($scope.movie.pret_id);
+    }
+    function iconStarsValue(){
+        var stars = 0;
+        var starsEmpty = 0;
+        
+        for(var i = 0; i < $scope.listAvis.$resources.length;i++){
+            var html = '';
+            stars = $scope.listAvis.$resources[i].rate;
+            starsEmpty = 10 - $scope.listAvis.$resources[i].rate;
+            var starsCounter = 0;
+            var starsEmptyCounter = 0;
+
+            while(starsCounter != stars){
+                html += '<i class="icon-star"></i>';
+                starsCounter++;
+            }
+            while(starsEmptyCounter != starsEmpty){
+                html += '<i class="icon-star-empty"></i>';
+                starsEmptyCounter++;
+            }
+            $('#' + $scope.listAvis.$resources[i].html_id + '').html(html).fadeIn('fast');
+        }
+    }
+
+    $scope.edit = function(field){
+        switch(field){
+            case 'title':                
+                $('.field-title').prop('disabled',false);
+                $('.field-title').addClass('enable-detail');
+                $('.edit-title').fadeOut(150).css('display','none');
+                $('.save-title').fadeIn(150).css('display','inline');
+            break;
+            case 'numMovie':
+                $('.field-num-movie').prop('disabled',false);
+                $('.field-num-movie').addClass('enable-detail');
+                $('.edit-num-movie').fadeOut(150).css('display','none');
+                $('.save-num-movie').fadeIn(150).css('display','inline');
+            break;
+            case 'nbDisc':
+                $('.field-nb-disc').prop('disabled',false);
+                $('.field-nb-disc').addClass('enable-detail');
+                $('.edit-nb-disc').fadeOut(150).css('display','none');
+                $('.save-nb-disc').fadeIn(150).css('display','inline');
+            break;
+            case 'type':
+                $('.field-type').prop('disabled',false);
+                $('.field-type').addClass('enable-detail');
+                $('.edit-type').fadeOut(150).css('display','none');
+                $('.save-type').fadeIn(150).css('display','inline');
+            break;
+            case 'pret':
+                $('.field-pret').prop('disabled',false);
+                $('.field-pret').addClass('enable-detail');
+                $('.edit-pret').fadeOut(150).css('display','none');
+                $('.save-pret').fadeIn(150).css('display','inline');
+            break;
+
+            default:
+            break;
+        }
+    };
+
+    $scope.closeEdit = function(field,validation){
+        switch(field){
+            case 'title':
+                if(validation){
+                    var tempList = GetAppService.editMovieField(field,$('.field-title').val(),$scope.movie.id,null);
+                }
+                else{
+                    $('.field-title').val($scope.movie.title);
+                }
+                $('.save-title').fadeOut(150,function(){$('.edit-title').fadeIn(150);});
+                $('.field-title').prop('disabled',true);
+                $('.field-title').removeClass('enable-detail');                
+            break;
+            case 'numMovie':
+                if(validation){
+                    var tempList = GetAppService.editMovieField(field,$('.field-num-movie').val(),$scope.movie.id,null);
+                }
+                else{
+                    $('.field-num-movie').val($scope.movie.num_movie);
+                }
+                $('.save-num-movie').fadeOut(150,function(){$('.edit-num-movie').fadeIn(150);});
+                $('.field-num-movie').prop('disabled',true);
+                $('.field-num-movie').removeClass('enable-detail');                
+            break;
+            case 'nbDisc':
+                if(validation){
+                    var tempList = GetAppService.editMovieField(field,$('.field-nb-disc').val(),$scope.movie.id,null);
+                }
+                else{
+                    $('.field-nb-disc').val($scope.movie.nb_disc);
+                }
+                $('.save-nb-disc').fadeOut(150,function(){$('.edit-nb-disc').fadeIn(150);});
+                $('.field-nb-disc').prop('disabled',true);
+                $('.field-nb-disc').removeClass('enable-detail');                
+            break;
+            case 'type':
+                if(validation){
+                    var tempList = GetAppService.editMovieField(field,$('.hf-filter-type-detail-id').val(),$scope.movie.id,null);
+                }
+                else{
+                    $('.field-type').html($scope.movie.type + '&nbsp;<span class="caret"></span>');
+                    $('.hf-filter-type-detail-id').val($scope.movie.type_movie_id);
+                }
+                $('.save-type').fadeOut(150,function(){$('.edit-type').fadeIn(150);});
+                $('.field-type').prop('disabled',true);
+                $('.field-type').removeClass('enable-detail');                
+            break;
+            case 'pret':
+                if(validation){
+                    var tempList = GetAppService.editMovieField(field,$('.hf-pret-detail-id').val(),$scope.movie.id,$('.hf-pret-old-detail-id').val());
+                }
+                else{
+                    $('.field-pret').html($scope.movie.fullname + '&nbsp;<span class="caret"></span>');
+                    $('.hf-pret-detail-id').val($scope.movie.pret_id);
+                }
+                $('.save-pret').fadeOut(150,function(){$('.edit-pret').fadeIn(150);});
+                $('.field-pret').prop('disabled',true);
+                $('.field-pret').removeClass('enable-detail');                
+            break;
+
+            default:
+            break;
+        }
+    };
+
+
+    $scope.changeType = function(typeId,type){
+        var htmlFilter = type + '&nbsp;<span class="caret"></span>';
+        $(".hf-filter-type-detail-id").val(typeId);
+        $(".hf-filter-type-detail-name").val(type);
+        $(".field-type").html(htmlFilter);
+    };
+
+    $scope.changePret = function(pretId,name){
+        var htmlFilter = name + '&nbsp;<span class="caret"></span>';
+        $(".hf-pret-detail-id").val(pretId);
+        $(".field-pret").html(htmlFilter);
+    };
 }
 
 

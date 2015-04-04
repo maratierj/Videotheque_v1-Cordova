@@ -20,6 +20,9 @@ app.factory('GetAppService',function($rootScope){
 		},
 		getMovieAvisAll : function($rootScope){
 			allMovieAvis($rootScope);
+		},
+		editMovieField :function(field,value,movieId,oldUserId){
+			editField(field,value,movieId,oldUserId);
 		}
 	}
 });
