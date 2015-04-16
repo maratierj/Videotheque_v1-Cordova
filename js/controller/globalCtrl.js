@@ -374,9 +374,6 @@ function listCtrl($scope,GetAppService,$timeout){
 
 
     $scope.backConfig = function(panel){
-        //TEST peut-etre va t'il falloir recharger le $scope.movie par toutes les valeurs sinon on reperd les modifications en cas de deuxième visualisation sans recharger la liste
-        alert($scope.movie.title);
-
         if(panel == 2){
             $scope.panel=1;
             $(".rt-movie-detail").hide();
@@ -408,6 +405,9 @@ function listCtrl($scope,GetAppService,$timeout){
             //Avis
             $scope.updateAvis(rowId);
 
+            //TEST peut-etre va t'il falloir recharger le $scope.movie par toutes les valeurs sinon on reperd les modifications en cas de deuxième visualisation sans recharger la liste
+            $scope.updateMovieDetail();
+
 
             $('.panel-movie-detail').translate3d(
                 { x: '100%', y: '0px', z: '0px'},
@@ -425,9 +425,7 @@ function listCtrl($scope,GetAppService,$timeout){
                 function(){
                     $('.pagination-content').fadeIn(300);
                 }
-            );
-
-            
+            );   
         }
         else if(panel ==1){
             $(".view").css("overflow-x","hidden");
@@ -475,6 +473,11 @@ function listCtrl($scope,GetAppService,$timeout){
         }
         $("#" + rowId + " div.vote_progress").css("width", result + "0%");
         $("#" + rowId + " div.vote_progress").css("background-color",color);
+
+    };
+
+    //Mise à jour du film sélectionné en cas de plus d'une visualisation du détail d'un mm film sans recharger la liste
+    $scope.updateMovieDetail = function(){
 
     };
 
